@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agだこ ご注文フォーム</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+            background-color: #f7fafc; /* Light gray background */
+            color: #2d3748; /* Dark gray text */
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .item-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #edf2f7; /* Slightly darker background for cards */
+        }
+        .topping-section {
+            display: none; /* Hidden by default */
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #cbd5e0;
+        }
+        .summary-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
+        }
+        .button-primary {
+            background-color: #4299e1; /* Blue color */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .button-primary:hover {
+            background-color: #3182ce;
+        }
+        .button-secondary {
+            background-color: #e2e8f0; /* Light gray */
+            color: #2d3748;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .button-secondary:hover {
+            background-color: #cbd5e0;
+        }
+        .message-box {
+            background-color: #c6f6d5; /* Light green for success */
+            border: 1px solid #68d391;
+            color: #2f855a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none; /* Hidden by default */
+        }
+        .error-box {
+            background-color: #fed7d7; /* Light red for error */
+            border: 1px solid #fc8181;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6">Agだこ ご注文フォーム</h1>
+        <p class="text-center text-sm mb-6 text-gray-600">お支払いはお会計時に現金でお願いいたします。</p>
+
+        <form id="orderForm" class="space-y-4">
+            <!-- Agだこ Section -->
+            <div class="item-card">
+                <label for="agidakoQuantity" class="block text-xl font-semibold mb-2">Agだこ (3個 ¥200)</label>
+                <div class="flex items-center space-x-2">
+                    <button type="button" class="quantity-button px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="updateQuantity('agidako', -1)">-</button>
+                    <input type="number" id="agidakoQuantity" name="agidakoQuantity" value="0" min="0" class="w-16 text-center border rounded-md p-1 focus:ring-blue-500 focus:border-blue-500" readonly>
+                    <button type="button" class="quantity-button px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="updateQuantity('agidako', 1)">+</button>
+                </div>
+                <div id="agidakoToppings" class="topping-section mt-4 pt-4 border-t border-dashed border-gray-300">
+                    <p class="font-semibold mb-2">トッピング (各 ¥100):</p>
+                    <div class="flex flex-col space-y-1">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="agidakoTopping" value="かつおぶし" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                            <span class="ml-2 text-gray-700">かつおぶし</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="agidakoTopping" value="明太子" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                            <span class="ml-2 text-gray-700">明太子</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ベビーカステラ Section -->
+            <div class="item-card">
+                <label for="babycastellaQuantity" class="block text-xl font-semibold mb-2">ベビーカステラ (3個 ¥200)</label>
+                <div class="flex items-center space-x-2">
+                    <button type="button" class="quantity-button px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="updateQuantity('babycastella', -1)">-</button>
+                    <input type="number" id="babycastellaQuantity" name="babycastellaQuantity" value="0" min="0" class="w-16 text-center border rounded-md p-1 focus:ring-blue-500 focus:border-blue-500" readonly>
+                    <button type="button" class="quantity-button px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="updateQuantity('babycastella', 1)">+</button>
+                </div>
+                <div id="babycastellaToppings" class="topping-section mt-4 pt-4 border-t border-dashed border-gray-300">
+                    <p class="font-semibold mb-2">トッピング (各 ¥100):</p>
+                    <div class="flex flex-col space-y-1">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="babycastellaTopping" value="チョコレート" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                            <span class="ml-2 text-gray-700">チョコレート</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="showOrderSummary()" class="button-primary w-full mt-6">注文内容を確認</button>
+
+            <!-- Message Boxes -->
+            <div id="successMessage" class="message-box" role="alert">
+                ご注文ありがとうございます！注文が正常に送信されました。
+            </div>
+            <div id="errorMessage" class="error-box" role="alert">
+                注文の送信中にエラーが発生しました。もう一度お試しください。
+            </div>
+            <div id="urlErrorMessage" class="error-box" role="alert">
+                エラー: Google Apps ScriptのURLが正しく設定されていません。コード内の `GOOGLE_APPS_SCRIPT_WEB_APP_URL` をウェブアプリのURLに置き換えてください。
+            </div>
+        </form>
+    </div>
+
+    <!-- Order Summary Modal -->
+    <div id="orderSummaryModal" class="summary-modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4 text-center">ご注文内容の確認</h2>
+            <div id="orderSummaryDetails" class="mb-6">
+                <!-- Order details will be inserted here by JavaScript -->
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeModal()" class="button-secondary">キャンセル</button>
+                <button type="button" onclick="submitOrder()" class="button-primary">この内容で注文確定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // *** IMPORTANT: REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL ***
+        // To get this URL:
+        // 1. Go to Google Apps Script (from Google Sheet: Extensions -> Apps Script)
+        // 2. Deploy -> New Deployment
+        // 3. Select Type: Web app
+        // 4. Execute as: Me
+        // 5. Who has access: Anyone
+        // 6. Copy the Web app URL and paste it here.
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE'; // 例: 'https://script.google.com/macros/s/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec'
+
+        const itemPrices = {
+            agidako: 200, // 3 for 200 yen
+            babycastella: 200 // 3 for 200 yen
+        };
+
+        const toppingPrices = {
+            かつおぶし: 100,
+            明太子: 100,
+            チョコレート: 100
+        };
+
+        // Function to update item quantity and toggle topping visibility
+        function updateQuantity(item, change) {
+            const quantityInput = document.getElementById(`${item}Quantity`);
+            let currentQuantity = parseInt(quantityInput.value);
+            currentQuantity = Math.max(0, currentQuantity + change); // Ensure quantity doesn't go below 0
+            quantityInput.value = currentQuantity;
+
+            const toppingSection = document.getElementById(`${item}Toppings`);
+            if (currentQuantity > 0) {
+                toppingSection.style.display = 'block'; // Show topping section if item quantity > 0
+            } else {
+                toppingSection.style.display = 'none'; // Hide topping section
+                // Uncheck all toppings for this item if quantity is 0
+                const checkboxes = toppingSection.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => checkbox.checked = false);
+            }
+        }
+
+        // Function to show the order summary modal
+        function showOrderSummary() {
+            const agidakoQuantity = parseInt(document.getElementById('agidakoQuantity').value);
+            const babycastellaQuantity = parseInt(document.getElementById('babycastellaQuantity').value);
+
+            // Get selected toppings
+            const agidakoToppings = Array.from(document.querySelectorAll('input[name="agidakoTopping"]:checked')).map(cb => cb.value);
+            const babycastellaToppings = Array.from(document.querySelectorAll('input[name="babycastellaTopping"]:checked')).map(cb => cb.value);
+
+            let orderDetailsHtml = '';
+            let totalAmount = 0;
+
+            if (agidakoQuantity > 0) {
+                const itemSubtotal = agidakoQuantity * itemPrices.agidako;
+                orderDetailsHtml += `<p class="font-semibold">Agだこ: ${agidakoQuantity}セット (${agidakoQuantity * 3}個) - ¥${itemSubtotal}</p>`;
+                totalAmount += itemSubtotal;
+                if (agidakoToppings.length > 0) {
+                    orderDetailsHtml += `<ul class="list-disc list-inside ml-4 text-sm text-gray-600">`;
+                    agidakoToppings.forEach(topping => {
+                        orderDetailsHtml += `<li>トッピング: ${topping} - ¥${toppingPrices[topping]}</li>`;
+                        totalAmount += toppingPrices[topping];
+                    });
+                    orderDetailsHtml += `</ul>`;
+                }
+            }
+
+            if (babycastellaQuantity > 0) {
+                const itemSubtotal = babycastellaQuantity * itemPrices.babycastella;
+                orderDetailsHtml += `<p class="font-semibold">ベビーカステラ: ${babycastellaQuantity}セット (${babycastellaQuantity * 3}個) - ¥${itemSubtotal}</p>`;
+                totalAmount += itemSubtotal;
+                if (babycastellaToppings.length > 0) {
+                    orderDetailsHtml += `<ul class="list-disc list-inside ml-4 text-sm text-gray-600">`;
+                    babycastellaToppings.forEach(topping => {
+                        orderDetailsHtml += `<li>トッピング: ${topping} - ¥${toppingPrices[topping]}</li>`;
+                        totalAmount += toppingPrices[topping];
+                    });
+                    orderDetailsHtml += `</ul>`;
+                }
+            }
+
+            if (agidakoQuantity === 0 && babycastellaQuantity === 0) {
+                orderDetailsHtml = `<p class="text-center text-red-500">まだ何も選択されていません。商品を選んでください。</p>`;
+                document.querySelector('#orderSummaryModal button.button-primary').disabled = true; // Disable confirm button
+            } else {
+                document.querySelector('#orderSummaryModal button.button-primary').disabled = false; // Enable confirm button
+            }
+
+            orderDetailsHtml += `<p class="text-xl font-bold mt-4 text-right">合計金額: ¥${totalAmount}</p>`;
+
+            document.getElementById('orderSummaryDetails').innerHTML = orderDetailsHtml;
+            document.getElementById('orderSummaryModal').style.display = 'flex'; // Show the modal
+        }
+
+        // Function to close the order summary modal
+        function closeModal() {
+            document.getElementById('orderSummaryModal').style.display = 'none';
+        }
+
+        // Function to submit the order
+        async function submitOrder() {
+            closeModal(); // Close the modal first
+
+            // Validate the Google Apps Script URL
+            if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE' || !/^https:\/\//.test(GOOGLE_APPS_SCRIPT_WEB_APP_URL)) {
+                console.error("Error: Google Apps Script URL is not configured correctly. Please replace 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE' with your deployed web app URL, ensuring it starts with 'https://'.");
+                showStatusMessage('urlErrorMessage');
+                return; // Stop execution
+            }
+
+            const agidakoQuantity = parseInt(document.getElementById('agidakoQuantity').value);
+            const babycastellaQuantity = parseInt(document.getElementById('babycastellaQuantity').value);
+
+            const agidakoToppings = Array.from(document.querySelectorAll('input[name="agidakoTopping"]:checked')).map(cb => cb.value);
+            const babycastellaToppings = Array.from(document.querySelectorAll('input[name="babycastellaTopping"]:checked')).map(cb => cb.value);
+
+            let orderItems = [];
+            let totalAmount = 0;
+
+            if (agidakoQuantity > 0) {
+                const itemPrice = agidakoQuantity * itemPrices.agidako;
+                orderItems.push({
+                    name: `Agだこ (${agidakoQuantity * 3}個)`,
+                    quantity: agidakoQuantity,
+                    basePrice: itemPrices.agidako,
+                    toppings: agidakoToppings,
+                    subtotal: itemPrice
+                });
+                totalAmount += itemPrice;
+                agidakoToppings.forEach(topping => totalAmount += toppingPrices[topping]);
+            }
+
+            if (babycastellaQuantity > 0) {
+                const itemPrice = babycastellaQuantity * itemPrices.babycastella;
+                orderItems.push({
+                    name: `ベビーカステラ (${babycastellaQuantity * 3}個)`,
+                    quantity: babycastellaQuantity,
+                    basePrice: itemPrices.babycastella,
+                    toppings: babycastellaToppings,
+                    subtotal: itemPrice
+                });
+                totalAmount += itemPrice;
+                babycastellaToppings.forEach(topping => totalAmount += toppingPrices[topping]);
+            }
+
+            // Prepare data for Google Apps Script
+            const formData = new FormData();
+            formData.append('agidakoQuantity', agidakoQuantity);
+            formData.append('babycastellaQuantity', babycastellaQuantity);
+            formData.append('agidakoToppings', JSON.stringify(agidakoToppings)); // Send as JSON string
+            formData.append('babycastellaToppings', JSON.stringify(babycastellaToppings)); // Send as JSON string
+            formData.append('totalAmount', totalAmount);
+            formData.append('timestamp', new Date().toLocaleString('ja-JP')); // Add timestamp
+
+            // Display loading message or spinner if desired
+            showLoadingMessage();
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    body: formData, // Use FormData for content-type: multipart/form-data, or convert to JSON.
+                                    // Apps Script doPost can handle FormData directly.
+                });
+
+                if (response.ok) {
+                    const result = await response.text(); // Apps Script usually returns plain text
+                    console.log('Order submitted successfully:', result);
+                    showStatusMessage('successMessage');
+                    resetForm(); // Reset form after successful submission
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error submitting order:', response.status, errorText);
+                    showStatusMessage('errorMessage');
+                }
+            } catch (error) {
+                console.error('Network or fetch error:', error);
+                showStatusMessage('errorMessage');
+            } finally {
+                hideLoadingMessage();
+            }
+        }
+
+        // Helper function to show status messages
+        function showStatusMessage(id) {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('urlErrorMessage').style.display = 'none'; // Ensure new error message is hidden initially
+            document.getElementById(id).style.display = 'block';
+            setTimeout(() => {
+                document.getElementById(id).style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        }
+
+        // Simple loading indicator (can be improved with a spinner/overlay)
+        function showLoadingMessage() {
+            // In a real app, you might show a spinner or disable buttons
+            console.log('Submitting order...');
+        }
+
+        function hideLoadingMessage() {
+            // Hide loading indicator
+            console.log('Submission complete.');
+        }
+
+        // Function to reset the form after submission
+        function resetForm() {
+            document.getElementById('agidakoQuantity').value = 0;
+            document.getElementById('babycastellaQuantity').value = 0;
+            document.getElementById('agidakoToppings').style.display = 'none';
+            document.getElementById('babycastellaToppings').style.display = 'none';
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+        }
+    </script>
+</body>
+</html>
